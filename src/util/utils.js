@@ -2,13 +2,13 @@ function Utils(errorOutputId) { // eslint-disable-line no-unused-vars
     let self = this;
     this.errorOutput = document.getElementById(errorOutputId);
 
-    const OPENCV_URL = 'opencv3_4.js';
+    const OPENCV_URL = require('../assets/js/opencv3_4.js');
     this.loadOpenCv = function(onloadCallback) {
         let script = document.createElement('script');
         script.setAttribute('async', '');
         script.setAttribute('type', 'text/javascript');
         script.addEventListener('load', () => {
-            //console.log(cv.getBuildInformation());
+            console.log(window.cv.getBuildInformation());
             onloadCallback();
         });
         script.addEventListener('error', () => {
@@ -22,18 +22,14 @@ function Utils(errorOutputId) { // eslint-disable-line no-unused-vars
     this.createFileFromUrl = function(path, url, callback) {
         let request = ''
         console.log("window.XMLHttpRequest===>", window.XMLHttpRequest);
-        if (window.XMLHttpRequest) {
-            request = new XMLHttpRequest();
-        } else {
-            request = new ActiveXObject("Microsoft.XMLHTTP")
-        }
+        request = new XMLHttpRequest();
         request.open('GET', url, true);
         request.responseType = 'arraybuffer';
-        request.onload = function(ev) {
+        request.onload = function() {
             if (request.readyState === 4) {
                 if (request.status === 200) {
                     let data = new Uint8Array(request.response);
-                    cv.FS_createDataFile('/', path, data, true, false, false);
+                    window.cv.FS_createDataFile('/', path, data, true, false, false);
                     callback();
                 } else {
                     self.printError('Failed to load ' + url + ' status: ' + request.status);
@@ -80,29 +76,20 @@ function Utils(errorOutputId) { // eslint-disable-line no-unused-vars
         } else if (typeof err === 'number') {
             if (!isNaN(err)) {
                 if (typeof cv !== 'undefined') {
-                    err = 'Exception: ' + cv.exceptionFromPtr(err).msg;
+                    err = 'Exception: ' + window.cv.exceptionFromPtr(err).msg;
                 }
             }
         } else if (typeof err === 'string') {
             let ptr = Number(err.split(' ')[0]);
             if (!isNaN(ptr)) {
                 if (typeof cv !== 'undefined') {
-                    err = 'Exception: ' + cv.exceptionFromPtr(ptr).msg;
+                    err = 'Exception: ' + window.cv.exceptionFromPtr(ptr).msg;
                 }
             }
         } else if (err instanceof Error) {
             err = err.stack.replace(/\n/g, '<br>');
         }
         this.errorOutput.innerHTML = err;
-    };
-
-    this.loadCode = function(scriptId, textAreaId) {
-        /*let scriptNode = document.getElementById(scriptId);
-        let textArea = document.getElementById(textAreaId);
-        if (scriptNode.type !== 'text/code-snippet') {
-            throw Error('Unknown code snippet type');
-        }
-        textArea.value = scriptNode.text.replace(/^\n/, '');*/
     };
 
     this.addFileInputHandler = function(fileInputId, canvasId) {
@@ -120,7 +107,7 @@ function Utils(errorOutputId) { // eslint-disable-line no-unused-vars
         if (self.onCameraStartedCallback) {
             self.onCameraStartedCallback(self.stream, self.video);
         }
-    };
+    }
 
     this.startCamera = function(resolution, callback, videoId) {
         const constraints = {
@@ -160,4 +147,4 @@ function Utils(errorOutputId) { // eslint-disable-line no-unused-vars
             this.stream.getVideoTracks()[0].stop();
         }
     };
-};
+}
