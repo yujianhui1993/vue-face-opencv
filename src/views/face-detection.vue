@@ -7,11 +7,7 @@
     <img v-if="corImg" style="width:80%" :src="corImg" alt="">
   </div>
 </template>
- <script async src='../assets/js/opencv.js' onload="onOpenCvReady();"></script>
 <script>
-function onOpenCvReady() {
-    console.log('opencv-start')
-  }
 
 import Face from '@/components/Face'
 export default {
